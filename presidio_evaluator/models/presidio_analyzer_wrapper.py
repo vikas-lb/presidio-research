@@ -47,7 +47,7 @@ class PresidioAnalyzerWrapper(BaseModel):
             tags.append(res.entity_type)
             scores.append(res.score)
 
-        response_tags = span_to_tag(
+        return span_to_tag(
             scheme=self.labeling_scheme,
             text=sample.full_text,
             start=starts,
@@ -56,7 +56,6 @@ class PresidioAnalyzerWrapper(BaseModel):
             scores=scores,
             tag=tags,
         )
-        return response_tags
 
     # Mapping between dataset entities and Presidio entities. Key: Dataset entity, Value: Presidio entity
     presidio_entities_map = {

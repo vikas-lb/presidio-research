@@ -23,13 +23,12 @@ class I2B22014Formatter(DatasetFormatter):
 
     @staticmethod
     def _create_span(item):
-        span = Span(
+        return Span(
             entity_type=item["@TYPE"],
             entity_value=item["@text"],
             start_position=int(item["@start"]),
             end_position=int(item["@end"]),
         )
-        return span
 
     def to_input_samples(self, folder: Optional[str] = None) -> List[InputSample]:
         input_samples = []

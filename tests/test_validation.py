@@ -30,9 +30,15 @@ def test_get_samples_by_pattern():
     train_samples = get_samples_by_pattern(dataset, train_templates)
     test_samples = get_samples_by_pattern(dataset, test_templates)
 
-    dataset_templates = set([sample.metadata['Template#'] for sample in dataset])
-    train_samples_templates = set([sample.metadata['Template#'] for sample in train_samples])
-    test_samples_templates = set([sample.metadata['Template#'] for sample in test_samples])
+    dataset_templates = {sample.metadata['Template#'] for sample in dataset}
+    train_samples_templates = {
+        sample.metadata['Template#'] for sample in train_samples
+    }
+
+    test_samples_templates = {
+        sample.metadata['Template#'] for sample in test_samples
+    }
+
 
     assert len(train_samples) + len(test_samples) == len(dataset)
     assert dataset_templates == train_samples_templates | test_samples_templates
@@ -67,10 +73,10 @@ def test_split_dataset_four_sets():
     # make sure all original template IDs are in the new sets
 
     original_keys = set([1, 2, 3, 4])
-    t1 = set([sample.metadata['Template#'] for sample in train])
-    t2 = set([sample.metadata['Template#'] for sample in test])
-    t3 = set([sample.metadata['Template#'] for sample in dev])
-    t4 = set([sample.metadata['Template#'] for sample in val])
+    t1 = {sample.metadata['Template#'] for sample in train}
+    t2 = {sample.metadata['Template#'] for sample in test}
+    t3 = {sample.metadata['Template#'] for sample in dev}
+    t4 = {sample.metadata['Template#'] for sample in val}
 
     assert original_keys == t1 | t2 | t3 | t4
 

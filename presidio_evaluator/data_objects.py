@@ -159,9 +159,11 @@ class SimpleToken:
 
             if token._ and token._._extensions:
                 extensions = list(token._.token_extensions.keys())
-                extension_values = {}
-                for extension in extensions:
-                    extension_values[extension] = token._.__getattr__(extension)
+                extension_values = {
+                    extension: token._.__getattr__(extension)
+                    for extension in extensions
+                }
+
                 spacy_extensions = SimpleSpacyExtensions(**extension_values)
             else:
                 spacy_extensions = None
@@ -233,7 +235,7 @@ class InputSample(object):
             tokens = []
         self.full_text = full_text
         self.masked = masked
-        self.spans = spans if spans else []
+        self.spans = spans or []
         self.metadata = metadata
 
         # generated samples have a template from which they were generated
@@ -244,11 +246,8 @@ class InputSample(object):
 
         if create_tags_from_span:
             tokens, tags = self.get_tags(scheme)
-            self.tokens = tokens
-            self.tags = tags
-        else:
-            self.tokens = tokens
-            self.tags = tags
+        self.tokens = tokens
+        self.tags = tags
 
     def __repr__(self):
         return (
@@ -329,16 +328,13 @@ class InputSample(object):
         import pandas as pd
 
         conlls = []
-        i = 0
-        for sample in dataset:
+        for i, sample in enumerate(dataset):
             if to_bio:
                 sample.bilou_to_bio()
             conll = sample.to_conll(translate_tags=translate_tags)
             for token in conll:
                 token["sentence"] = i
                 conlls.append(token)
-            i += 1
-
         return pd.DataFrame(conlls)
 
     def to_spacy(self, entities=None, translate_tags=True):
@@ -421,12 +417,10 @@ class InputSample(object):
                 )
             token_dicts.append({"orth": token.text, "tag": token.tag_, "ner": tag})
 
-        spacy_json_sentence = {
+        return {
             "raw": self.full_text,
             "sentences": [{"tokens": token_dicts}],
         }
-
-        return spacy_json_sentence
 
     def to_spacy_doc(self):
         doc = self.tokens
@@ -475,11 +469,10 @@ class InputSample(object):
         :param ignore_unknown: Whether to put "O" when word not in dictionary or keep old entity type
         :return: list of translated entities
         """
-        new_tags = []
-        for tag in tags:
-            new_tags.append(InputSample.translate_tag(tag, dictionary, ignore_unknown))
-
-        return new_tags
+        return [
+            InputSample.translate_tag(tag, dictionary, ignore_unknown)
+            for tag in tags
+        ]
 
     @staticmethod
     def translate_tag(tag, dictionary, ignore_unknown):
@@ -489,11 +482,10 @@ class InputSample(object):
             return (
                 tag[:2] + dictionary[no_prefix] if has_prefix else dictionary[no_prefix]
             )
+        if ignore_unknown:
+            return "O"
         else:
-            if ignore_unknown:
-                return "O"
-            else:
-                return tag
+            return tag
 
     def bilou_to_bio(self):
         new_tags = []
@@ -544,8 +536,4 @@ class InputSample(object):
 
     @staticmethod
     def create_flair_dataset(dataset):
-        flair_samples = []
-        for sample in dataset:
-            flair_samples.append(sample.to_flair())
-
-        return flair_samples
+        return [sample.to_flair() for sample in dataset]

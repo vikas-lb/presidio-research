@@ -34,5 +34,4 @@ def get_mock_fake_df(**kwargs):
     dict.update(kwargs)
 
     import pandas as pd
-    fake_pii_df = pd.DataFrame(dict, index=[0])
-    return fake_pii_df
+    return pd.DataFrame(dict, index=[0])

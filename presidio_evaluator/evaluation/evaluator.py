@@ -67,7 +67,7 @@ class Evaluator:
         if self.entities_to_keep:
             prediction = self._adjust_per_entities(prediction)
             new_annotation = self._adjust_per_entities(new_annotation)
-        for i in range(0, len(new_annotation)):
+        for i in range(len(new_annotation)):
             results[(new_annotation[i], prediction[i])] += 1
 
             if self.verbose:
@@ -172,15 +172,14 @@ class Evaluator:
             new_spans = []
             # Update spans to match the entity types in the values of entities_mapping
             for span in input_sample.spans:
-                if span.entity_type in entities_mapping.keys():
+                if span.entity_type in entities_mapping:
                     new_name = entities_mapping.get(span.entity_type)
                     span.entity_type = new_name
                     contains_field_in_mapping = True
 
                     new_spans.append(span)
-                else:
-                    if not allow_missing_mappings:
-                        raise ValueError(f"Key {span.entity_type} cannot be found in the provided entities_mapping")
+                elif not allow_missing_mappings:
+                    raise ValueError(f"Key {span.entity_type} cannot be found in the provided entities_mapping")
             input_sample.spans = new_spans
 
             # Update tags in case this sample has relevant entities for evaluation
@@ -194,7 +193,7 @@ class Evaluator:
                         prefix = ""
                         clean = tag
 
-                    if clean in entities_mapping.keys():
+                    if clean in entities_mapping:
                         new_name = entities_mapping.get(clean)
                         input_sample.tags[i] = "{}{}".format(prefix, new_name)
                     else:
@@ -222,25 +221,21 @@ class Evaluator:
         """
 
         # aggregate results
-        all_results = sum([er.results for er in evaluation_results], Counter())
+        all_results = sum((er.results for er in evaluation_results), Counter())
 
         # compute pii_recall per entity
         entity_recall = {}
         entity_precision = {}
         if not entities:
-            entities = list(set([x[0] for x in all_results.keys() if x[0] != "O"]))
+            entities = list({x[0] for x in all_results.keys() if x[0] != "O"})
 
         for entity in entities:
             # all annotation of given type
-            annotated = sum([all_results[x] for x in all_results if x[0] == entity])
-            predicted = sum([all_results[x] for x in all_results if x[1] == entity])
+            annotated = sum(all_results[x] for x in all_results if x[0] == entity)
+            predicted = sum(all_results[x] for x in all_results if x[1] == entity)
             tp = all_results[(entity, entity)]
 
-            if annotated > 0:
-                entity_recall[entity] = tp / annotated
-            else:
-                entity_recall[entity] = np.NaN
-
+            entity_recall[entity] = tp / annotated if annotated > 0 else np.NaN
             if predicted > 0:
                 per_entity_tp = all_results[(entity, entity)]
                 entity_precision[entity] = per_entity_tp / predicted
@@ -248,32 +243,16 @@ class Evaluator:
                 entity_precision[entity] = np.NaN
 
         # compute pii_precision and pii_recall
-        annotated_all = sum([all_results[x] for x in all_results if x[0] != "O"])
-        predicted_all = sum([all_results[x] for x in all_results if x[1] != "O"])
+        annotated_all = sum(all_results[x] for x in all_results if x[0] != "O")
+        predicted_all = sum(all_results[x] for x in all_results if x[1] != "O")
         if annotated_all > 0:
-            pii_recall = (
-                sum(
-                    [
-                        all_results[x]
-                        for x in all_results
-                        if (x[0] != "O" and x[1] != "O")
-                    ]
-                )
-                / annotated_all
-            )
+            pii_recall = (sum(all_results[x] for x in all_results
+                                if (x[0] != "O" and x[1] != "O")) / annotated_all)
         else:
             pii_recall = np.NaN
         if predicted_all > 0:
-            pii_precision = (
-                sum(
-                    [
-                        all_results[x]
-                        for x in all_results
-                        if (x[0] != "O" and x[1] != "O")
-                    ]
-                )
-                / predicted_all
-            )
+            pii_precision = (sum(all_results[x] for x in all_results
+                                if (x[0] != "O" and x[1] != "O")) / predicted_all)
         else:
             pii_precision = np.NaN
         # compute pii_f_beta-score
