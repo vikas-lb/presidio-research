@@ -56,11 +56,10 @@ class FlairTrainer:
     @staticmethod
     def read_corpus(data_folder):
         columns = {0: 'text', 1: 'pos', 2: 'ner'}
-        corpus = ColumnCorpus(data_folder, columns,
+        return ColumnCorpus(data_folder, columns,
                                       train_file='flair_train.txt',
                                       test_file='flair_val.txt',
                                       dev_file='flair_test.txt')
-        return corpus
 
     @staticmethod
     def train(corpus):

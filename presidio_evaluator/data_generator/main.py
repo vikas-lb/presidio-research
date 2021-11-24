@@ -77,9 +77,7 @@ def read_synth_dataset(filepath=None, length=None):
     if length:
         dataset = dataset[:length]
 
-    input_samples = [InputSample.from_json(row) for row in dataset]
-
-    return input_samples
+    return [InputSample.from_json(row) for row in dataset]
 
 
 if __name__ == "__main__":

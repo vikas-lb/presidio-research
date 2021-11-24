@@ -13,12 +13,11 @@ def generate_url(domain: pd.Series):
     def generate_url_postfix():
         length = random.randint(4, 8)
         delim = "/" if random.random() > 0.5 else ""
-        postfix = haikunator.haikunate(
+        return haikunator.haikunate(
             delimiter=delim,
             token_chars="abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             token_length=length,
         )
-        return postfix
 
     def generate_url_prefix():
         rand = random.random()
@@ -85,23 +84,23 @@ def generate_ip_addresses(length):
 
 
 def generate_title(gender=None):
-    MALE_TITLES = ["Mr.", "Dr.", "Professor.", "Eng.", "Prof.", "Doctor."]
-    FEMALE_TITLES = [
-        "Mrs.",
-        "Ms.",
-        "Miss",
-        "Dr.",
-        "Professor.",
-        "Eng.",
-        "Prof.",
-        "Doctor",
-    ]
-
     if gender.lower() == "male":
+        MALE_TITLES = ["Mr.", "Dr.", "Professor.", "Eng.", "Prof.", "Doctor."]
         return random.choices(MALE_TITLES, weights=[0.7, 0.1, 0.05, 0.05, 0.05, 0.05])[
             0
         ]
     else:
+        FEMALE_TITLES = [
+            "Mrs.",
+            "Ms.",
+            "Miss",
+            "Dr.",
+            "Professor.",
+            "Eng.",
+            "Prof.",
+            "Doctor",
+        ]
+
         return random.choices(
             FEMALE_TITLES, weights=[0.3, 0.25, 0.20, 0.05, 0.05, 0.05, 0.05, 0.05]
         )[0]

@@ -25,7 +25,7 @@ def _get_detailed_tags(scheme, cur_tags):
     :return:
     """
 
-    if all([tag == "O" for tag in cur_tags]):
+    if all(tag == "O" for tag in cur_tags):
         return cur_tags
 
     return_tags = []
@@ -36,7 +36,7 @@ def _get_detailed_tags(scheme, cur_tags):
             return_tags.append("I-{}".format(cur_tags[0]))
     elif len(cur_tags) > 0:
         tg = cur_tags[0]
-        for j in range(0, len(cur_tags)):
+        for j in range(len(cur_tags)):
             if j == 0:
                 return_tags.append("B-{}".format(tg))
             elif j == len(cur_tags) - 1:
@@ -81,7 +81,6 @@ def _handle_overlaps(start, end, tag, score):
                     # else, j continues after i ended:
                     else:
                         start[j] = end[i] + 1
-                # j's score is higher, break i
                 else:
                     # If i finishes after j ended, split i
                     if end[j] < end[i]:
@@ -91,12 +90,8 @@ def _handle_overlaps(start, end, tag, score):
                         score.append(score[i])
                         tag.append(tag[i])
                         number_of_spans += 1
-                        # truncate the current i to end at start(j)
-                        end[i] = start[j] - 1
-                    # else, i finishes before j ended. truncate i
-                    else:
-                        end[i] = start[j] - 1
-
+                    # truncate the current i to end at start(j)
+                    end[i] = start[j] - 1
         i += 1
     start, end, tag, score = _sort_spans(start, end, tag, score)
     return start, end, tag, score
@@ -136,7 +131,7 @@ def span_to_tag(
     io_tags = []
     for token in tokens:
         found = False
-        for span_index in range(0, len(start)):
+        for span_index in range(len(start)):
             if start[span_index] <= token.idx < end[span_index]:
                 io_tags.append(tag[span_index])
                 found = True

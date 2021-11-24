@@ -119,8 +119,7 @@ class ModelError:
         )
         metadata_df = pd.DataFrame(errors_df["metadata"].tolist())
         errors_df.drop(["metadata"], axis=1, inplace=True)
-        new_errors_df = pd.concat([errors_df, metadata_df], axis=1)
-        return new_errors_df
+        return pd.concat([errors_df, metadata_df], axis=1)
 
     @staticmethod
     def get_fps_dataframe(errors=List["ModelError"], entity: str = None):

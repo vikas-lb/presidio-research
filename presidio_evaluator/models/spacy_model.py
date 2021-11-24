@@ -51,5 +51,4 @@ class SpacyModel(BaseModel):
 
     @staticmethod
     def get_tags_from_doc(doc):
-        tags = [token.ent_type_ if token.ent_type_ != "" else "O" for token in doc]
-        return tags
+        return [token.ent_type_ if token.ent_type_ != "" else "O" for token in doc]

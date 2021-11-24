@@ -59,12 +59,5 @@ class FlairModel(BaseModel):
 
     @staticmethod
     def get_tags_from_sentence(sentence):
-        tags = []
-        for token in sentence:
-            tags.append(token.get_tag("ner").value)
-
-        new_tags = []
-        for tag in tags:
-            new_tags.append("PERSON" if tag == "PER" else tag)
-
-        return new_tags
+        tags = [token.get_tag("ner").value for token in sentence]
+        return ["PERSON" if tag == "PER" else tag for tag in tags]

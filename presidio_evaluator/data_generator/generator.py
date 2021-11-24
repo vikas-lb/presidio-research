@@ -87,10 +87,7 @@ class FakeDataGenerator:
             "is_in_vocabulary", getter=self.get_is_in_vocabulary, force=True
         )
 
-        if templates:
-            self.templates = self._prep_templates(templates)
-        else:
-            self.templates = None
+        self.templates = self._prep_templates(templates) if templates else None
         self.original_pii_df = fake_pii_df
         self.fake_pii = None
         self.span_to_tag = span_to_tag
@@ -264,12 +261,10 @@ class FakeDataGenerator:
     @staticmethod
     def _prep_templates(raw_templates):
         print("Preparing sample sentences for ingestion")
-        # Todo: introduce typos
-        templates = [
+        return [
             template.strip().replace("[", "{").replace("]", "}")
             for template in raw_templates
         ]
-        return templates
 
     @staticmethod
     def get_template_entities(template):
